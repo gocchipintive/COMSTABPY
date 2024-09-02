@@ -33,6 +33,7 @@ class comstab(object):
 		                 dominance effect, the asynchrony effect and the averaging effect
 		- Relative: an array containing the relative contributions of the dominance, asynchrony
 					and averaging effects to the total stabilization of the community
+		- Taylor: an array containing the slope and the intercept of the linear fit of the Taylor's power law and the p-value of the fit
 		"""
 		datashape = np.shape(data)
 		#check if self.data is a matrix otherwise print error message
@@ -60,7 +61,8 @@ class comstab(object):
 		res = {
 			"CVs": np.zeros(4),           # CVe, CVtilde, CVa, CVc
 			"Stabilization": np.zeros(4), # tau, delta, psi, omega
-			"Relative": np.zeros(3)       # delta_cont, psi_cont, omega_cont
+			"Relative": np.zeros(3),       # delta_cont, psi_cont, omega_cont
+			"Taylor": np.zeros(3)         # slope, intercept
 		}
 
 		#analysis is not relevant for a single species community
@@ -69,6 +71,7 @@ class comstab(object):
 			res["CVs"] = np.array([cvsum,cvsum,cvsum,cvsum])
 			res["Stabilization"] = np.array([1,1,1,1])
 			res["Relative"] = np.array([np.nan,np.nan,np.nan])
+			res["Taylor"] = np.array([np.nan,np.nan,np.nan])
 			return res
 
 		else:
@@ -92,13 +95,13 @@ class comstab(object):
 			#test the significance of the fit with Pearson correlation and p value
 			_, p = pearsonr(np.log10(meani[~np.isnan(meani)]), np.log10(cvi[~np.isnan(cvi)]))
 
-#			plt.plot(np.log10(meani), np.log10(cvi), 'o')
-#			plt.plot(np.log10(meani), np.polyval(TPL, np.log10(meani)))
-#			plt.xlabel("log10(mean)")
-#			plt.ylabel("log10(CV)")
-#			plt.title("Taylor's law")
-#			plt.show()
-#			print("p-value: %.2f" % p)
+#		plt.plot(np.log10(meani), np.log10(cvi), 'o')
+#		plt.plot(np.log10(meani), np.polyval(TPL, np.log10(meani)))
+#		plt.xlabel("log10(mean)")
+#		plt.ylabel("log10(CV)")
+#		plt.title("Taylor's law")
+#		plt.show()
+#		print("p-value: %.2f" % p)
 
 			if p > 0.05:
 				print("Error: The fit of Taylor's law is not significant, the analysis is not relevant.")
@@ -136,6 +139,7 @@ class comstab(object):
 			#Outputs
 			res["CVs"] = np.array([CVe, CVtilde, CVtilde*Psi, cvsum])
 			res["Stabilization"] = np.array([tau, Delta, Psi, omega])
+			res["Taylor"] = np.array([(TPL[0]+1)*2,TPL[1],p])
 
 			#Relative effects
 			if res["Stabilization"].max() > 1:
