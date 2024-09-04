@@ -2,6 +2,7 @@ COMSTABPY is an python package that contains basic functions to apply the unifie
 
 ## INSTALLING
 COMSTABPY can be installed via the command line using
+
 `pip install COMSTABPY`
 
 If you are using conda you can install the enivronment *environmentl.yaml*, which contains also other packages usefull for data analysis.
@@ -9,5 +10,8 @@ If you are using conda you can install the enivronment *environmentl.yaml*, whic
 conda env create -f environment.yml`
 conda activate stab-py
 ```
+## USAGE
+Basic examples of package uses are shows in the jupytern notebook [docs/example.ipynb](https://github.com/gocchipintive/COMSTABPY/blob/main/docs/example.ipynb)
 
+> ** IMPORTANT ** If arrays or lists have to be provided to package functions please use numpy arrays
 
