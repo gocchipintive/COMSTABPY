@@ -1,15 +1,15 @@
 import numpy as np
 #import netCDF4 as nc
-import comstabpy 
+import COMSTABPY
 import matplotlib.pyplot as plt
 import xarray as xr
 
 #load the stability analysis module
-stb = comstabpy.comstab()
+stb = COMSTABPY.comstab()
 
 #chose depth layer
 layer = 'surface'
-#layer = 'deep'
+layer = 'deep'
 
 #arrays to save the rate of layers where the analysis worked correctly
 winter_rate = np.zeros(3)
@@ -60,13 +60,13 @@ for inc,ncname in enumerate(ncnames):
     for icomm,community in enumerate(communities):
         data = np.array(ds[community])[:,:,:]
 
-        if 'Z' in community:
-            if 'summer' in ncname:  #works
-                #remove rows of data with coefficient of variation > 1.0
-                mask = np.zeros(data.shape,dtype=bool)
-                for idp in range(data.shape[1]):
-                    mask[:,idp,:] = np.nanstd(data,axis=1)/np.nanmean(data,axis=1) > 2.0
-                data[mask] = np.nan
+#       if 'Z' in community:
+#           if 'summer' in ncname:  #works
+#               #remove rows of data with coefficient of variation > 1.0
+#               mask = np.zeros(data.shape,dtype=bool)
+#               for idp in range(data.shape[1]):
+#                   mask[:,idp,:] = np.nanstd(data,axis=1)/np.nanmean(data,axis=1) > 2.0
+#               data[mask] = np.nan
         
          #create array where to save the stability analysis    
         cvs_arr           = np.zeros((data.shape[2],4)) # CVe, CVtilde, CVa, CVc

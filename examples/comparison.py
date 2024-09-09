@@ -1,11 +1,11 @@
 import numpy as np
 #import netCDF4 as nc
-import comstabpy 
+import COMSTABPY 
 import matplotlib.pyplot as plt
 import xarray as xr
 
 #load the stability analysis module
-stb = comstabpy.comstab()
+stb = COMSTABPY.comstab()
 
 
 ncnames = ['result_surface_winter.nc','result_surface_summer.nc','result_surface_year.nc','result_deep_winter.nc','result_deep_summer.nc','result_deep_year.nc']
@@ -77,8 +77,8 @@ tukey_rep = stb.Tukey(rela_arr[:,:,1], labels=labels, savecsv=True, csvname='rep
 tukey_reo = stb.Tukey(rela_arr[:,:,2], labels=labels, savecsv=True, csvname='reo_Tukey.csv')
 
 
-temp = np.array(tukey_cvc)
-keys = tukey_cvc.keys()
+temp = np.array(tukey_sto)
+keys = tukey_sto.keys()
 for ii in range(len(temp[:,0])):
     for jj in range(len(temp[0,:])):
         if temp[ii,jj] < 0.05:

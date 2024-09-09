@@ -1,11 +1,11 @@
 import numpy as np
 #import netCDF4 as nc
-import comstabpy 
+import COMSTABPY
 import matplotlib.pyplot as plt
 import xarray as xr
 
 #load the stability analysis module
-stb = comstabpy.comstab()
+stb = COMSTABPY.comstab()
 
 
 ncnames = ['result_surface_winter.nc','result_surface_summer.nc','result_surface_year.nc','result_deep_winter.nc','result_deep_summer.nc','result_deep_year.nc']
@@ -156,7 +156,7 @@ for ax in axs:
     ax.set_xlabel(r'$\Delta$')
     ax.axhline(-10, c='k', ls='--')
     ax.axvline(1.0, c='k', ls='-', alpha=0.7, zorder=0)
-    ax.set_xlim(0.25,2.0)
+    ax.set_xlim(0.25,1.2)
 
 axs[0].legend((pl,zl,tl),
 				('P', 'Z', 'TOT'),
@@ -168,7 +168,7 @@ axs[0].legend((pl,zl,tl),
 #				title='Total\nStabilization',
 				borderpad=1.5,
 				#bbox_to_anchor=(0.4,0.95)
-                loc = 'lower right')
+                loc = 'lower left')
 
 plt.show()
 

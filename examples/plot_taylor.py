@@ -15,7 +15,7 @@ if layer == 'surface':
 #deep
 if layer == 'deep':
     ncnames  = ['result_deep_winter.nc','result_deep_summer.nc','result_deep_year.nc']
-    z_layers = [20,50,80]
+    z_layers = [15,30,70]
 
 communities = ['P','Z','TOT']
 markers = np.array(['o','^','*'])
@@ -42,9 +42,10 @@ for inc,ncname in enumerate(ncnames):
             var_biomass[cv_biomass==0] = np.nan
             cv_biomass[cv_biomass==0] = np.nan
             mask = np.zeros_like(mean_biomass,dtype=bool)
-            if community == 'Z' and 'summer' in ncname and layer == 'surface':
+#           if community == 'Z' and 'summer' in ncname:# and layer == 'surface':
+            if False:
                 #remove elements in cv_biomass and mean_biomass with cv_biomass>1
-                mask = cv_biomass>2.0
+                mask = cv_biomass>1.0
                 mean = mean_biomass[~mask]
                 var  = var_biomass[~mask]
                 cv   = cv_biomass[~mask]
