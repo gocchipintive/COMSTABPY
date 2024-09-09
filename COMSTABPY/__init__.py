@@ -16,24 +16,27 @@ class comstab(object):
 		#self.datashape = np.shape(data)
 		self.colors =  plt.get_cmap('tab20').colors
 	
-	def partition(self,data, stamp=True):
+	def partition(self,data, ny=None, stamp=True):
 		"""
 		partition is a function used to partition the temporal coefficient of variation 
 		of a community into the variability of the average species and three stabilizing 
 		effects: the dominance, asynchrony and averaging effects
-		data: is a matrix or an array containing the biomass timeseries of the species 
-		in the community
+		data:  is a matrix or an array containing the biomass timeseries of the species 
+		       in the community
+		ny:    integer number of timesteps, removes species appearing in fewer than "ny" timesteps. 
+		       The unit of measure is the timestep of the timeseries, default is None
 		stamp: if True the results are printed on the screen
 		RETURN: res a dictionary containing the following keys:
-		- CVs: an array containing the coefficient of variation of the average species, 
-		       the total variability of the community, the total variability of the community 
-		       corrected for the asynchrony effect and the total variability of the community 
-		       corrected for the asynchrony and averaging effects
+		- CVs:           an array containing the coefficient of variation of the average species, 
+		                 the total variability of the community, the total variability of the community 
+		                 corrected for the asynchrony effect and the total variability of the community 
+		                 corrected for the asynchrony and averaging effects
 		- Stabilization: an array containing the total stabilization of the community, the 
 		                 dominance effect, the asynchrony effect and the averaging effect
-		- Relative: an array containing the relative contributions of the dominance, asynchrony
-					and averaging effects to the total stabilization of the community
-		- Taylor: an array containing the slope and the intercept of the linear fit of the Taylor's power law and the p-value of the fit
+		- Relative:      an array containing the relative contributions of the dominance, asynchrony
+					     and averaging effects to the total stabilization of the community
+		- Taylor:        an array containing the slope (b) and the intercept (a) of the linear fit of
+		                 the Taylor's power law and the p-value of the fit
 		"""
 		datashape = np.shape(data)
 		#check if self.data is a matrix otherwise print error message
@@ -44,8 +47,27 @@ class comstab(object):
 		if np.any(data < 0):
 			print("Error: data should be positive")
 			sys.exit()
+
+		#if ny is not None remove species appearing in fewer than "ny" timesteps
+		if ny != None:
+			#check if ny is an integer
+			if not isinstance(ny, int):
+				print("Error: ny should be an integer")
+				sys.exit()
+			#check if ny is positive
+			if ny <= 0:
+				print("Error: ny should be positive")
+				sys.exit()
+			#count the number of timesteps for each species
+			count = np.count_nonzero(~np.isnan(data), axis=1)
+			#remove species appearing in fewer than "ny" timesteps
+			data = data[count >= ny]
+			#update the shape of the data
+			datashape = np.shape(data)
+
 		#number of species
 		n = datashape[0]
+
 
 		#compute the mean of the community (the biomass of the species are summed up)
 		meansum = np.nanmean(np.nansum(data,axis=0))
@@ -139,7 +161,7 @@ class comstab(object):
 			#Outputs
 			res["CVs"] = np.array([CVe, CVtilde, CVtilde*Psi, cvsum])
 			res["Stabilization"] = np.array([tau, Delta, Psi, omega])
-			res["Taylor"] = np.array([(TPL[0]+1)*2,TPL[1],p])
+			res["Taylor"] = np.array([(TPL[0]+1)*2,TPL[1]**2,p])
 
 			#Relative effects
 			if res["Stabilization"].max() > 1:
@@ -165,9 +187,9 @@ class comstab(object):
 		ternaryplot() is a graph function used to represent the relative contributions
 		of the three stabilizing effects ("Dominance", "Asynchrony" and "Averaging") on a
 		ternary plot.
-		rel:        is an array containing the relative contributions of the three stabilizing
+		res:        is an array containing the relative contributions of the three stabilizing
 		            or a matrix Nx3 where each rows contains the relative contributions for 
-			        different N communities
+			        different N communities in the order dominance,asyncrony,averaging
 		tau:        array of total stabilization, it is used as reference for the size of
 		            the point in the ternary plot when more communities are studie, if None all the points will have the same size
 		color:      string or array of N string, color of the point(s) in the ternary plot associated
@@ -222,18 +244,18 @@ class comstab(object):
 		for irel, rel in enumerate(res):
 			if tau.any() == None:
 				if marker == None:
-					ax.scatter(rel[1], rel[0], rel[2], color=color[irel],label=labels[irel])
+					ax.scatter(rel[0], rel[2], rel[1], color=color[irel],label=labels[irel])
 				else:
 					if len(np.shape(marker)) == 0:
 						marker = np.array([marker])
-					ax.scatter(rel[1], rel[0], rel[2], color=color[irel], marker=marker[irel],label=labels[irel])
+					ax.scatter(rel[0], rel[2], rel[1], color=color[irel], marker=marker[irel],label=labels[irel])
 			else:
 				if (marker == None).any():
-					ax.scatter(rel[1], rel[0], rel[2], color=color[irel], s=tau[irel]*300+10,label=labels[irel])
+					ax.scatter(rel[0], rel[2], rel[1], color=color[irel], s=tau[irel]*300+10,label=labels[irel])
 				else:
 					if len(np.shape(marker)) == 0:
 						marker = np.array([marker])
-					ax.scatter(rel[1], rel[0], rel[2], color=color[irel], marker=marker[irel], s=tau[irel]*300+10,label=labels[irel])
+					ax.scatter(rel[0], rel[2], rel[1], color=color[irel], marker=marker[irel], s=tau[irel]*300+10,label=labels[irel])
 	
 			ax.taxis.set_major_locator(MultipleLocator(0.20))
 			ax.laxis.set_major_locator(MultipleLocator(0.20))
@@ -306,9 +328,9 @@ class comstab(object):
 			lpos = (la + lb) * 0.5
 			rpos = (ra + rb) * 0.5
 	
-			ax.text(*tpos, r'Asynchrony contribution $\psi_{rel}$'  , color='k', rotation=-60, **kwargs_label)
-			ax.text(*lpos, r'Dominance contribution $\Delta_{rel}$' , color='k', rotation= 60, **kwargs_label)
-			ax.text(*rpos, r'Averaging contribution $\omega_{rel}$', color='k', rotation=  0, **kwargs_label)
+			ax.text(*tpos, r'Dominance contribution $\Delta_{rel}$'  , color='k', rotation=-60, **kwargs_label)
+			ax.text(*lpos, r'Averaging contribution $\omega_{rel}$' , color='k', rotation= 60, **kwargs_label)
+			ax.text(*rpos, r'Asynchrony contribution $\psi_{rel}$', color='k', rotation=  0, **kwargs_label)
 
 		plt.subplots_adjust(right=0.9)
 		ax.grid(visible=True)
