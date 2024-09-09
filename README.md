@@ -15,3 +15,5 @@ Basic examples of package uses are shows in the jupytern notebook [docs/example.
 
 > ** IMPORTANT ** If arrays or lists have to be provided to package functions please use numpy arrays
 
+## AKNOWLDEGEMENTS
+This work was partly supported by the National Recovery and Resilience Plan (NRRP), Mission 4 Component 2 Investment 1.4 - Call for tender No. 3138 of 16 December 2021, rectified by Decree n.3175 of 18 December 2021 of Italian Ministry of University and Research funded by the European Union – NextGenerationEU.
