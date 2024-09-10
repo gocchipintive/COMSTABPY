@@ -7,7 +7,7 @@ from scipy.stats import pearsonr
 
 #chose depth layer
 layer = 'surface'
-#layer = 'deep'
+layer = 'deep'
 
 if layer == 'surface':
     ncnames  = ['result_surface_winter.nc','result_surface_summer.nc','result_surface_year.nc']
@@ -15,7 +15,7 @@ if layer == 'surface':
 #deep
 if layer == 'deep':
     ncnames  = ['result_deep_winter.nc','result_deep_summer.nc','result_deep_year.nc']
-    z_layers = [15,30,70]
+    z_layers = [25,50,75]
 
 communities = ['P','Z','TOT']
 markers = np.array(['o','^','*'])

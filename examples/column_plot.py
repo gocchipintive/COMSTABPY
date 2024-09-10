@@ -11,7 +11,7 @@ threshold = 9.6e-3
 threshold = 1.0e-4
 
 season = 'winter'
-#season = 'summer'
+season = 'summer'
 
 ds = xr.open_dataset(ncname)
 

@@ -13,7 +13,7 @@ if layer == 'surface':
 #deep
 if layer == 'deep':
     ncnames  = ['result_deep_winter.nc','result_deep_summer.nc','result_deep_year.nc']
-    z_layers = [20,50,80]
+    z_layers = [25,50,75]
 
 communities = ['P','Z','TOT']
 
