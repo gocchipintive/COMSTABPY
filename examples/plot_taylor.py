@@ -7,7 +7,7 @@ from scipy.stats import pearsonr
 
 #chose depth layer
 layer = 'surface'
-layer = 'deep'
+#layer = 'deep'
 
 if layer == 'surface':
     ncnames  = ['result_surface_winter.nc','result_surface_summer.nc','result_surface_year.nc']
@@ -75,18 +75,30 @@ for inc,ncname in enumerate(ncnames):
                 sumsd = np.nansum(np.sqrt(var_biomass))
                 CVtilde = sumsd / meansum
 
-            axs[icomm,iax].scatter(np.log10(mean_biomass[~mask]),np.log10(cv_biomass[~mask]),marker=markers[icomm],c=colors[inc],alpha=0.7)
-            axs[icomm,iax].scatter(np.log10(mean_biomass[mask]),np.log10(cv_biomass[mask]),marker=markers[icomm],c=colors[inc],alpha=0.2)
-            axs[icomm,iax].plot(np.log10(mean_biomass),TPL[0]*np.log10(mean_biomass)+TPL[1],c='k',label='b='+str(round((TPL[0]+1)*2,2))+', p-value='+str(round(p,3)))
+            #axs[icomm,iax].scatter(np.log10(mean_biomass[~mask]),np.log10(cv_biomass[~mask]),marker=markers[icomm],c=colors[inc],alpha=0.7)
+            #axs[icomm,iax].scatter(np.log10(mean_biomass[mask]),np.log10(cv_biomass[mask]),marker=markers[icomm],c=colors[inc],alpha=0.2)
+            #axs[icomm,iax].plot(np.log10(mean_biomass),TPL[0]*np.log10(mean_biomass)+TPL[1],c='k',label='b='+str(round((TPL[0]+1)*2,2))+', p-value='+str(round(p,3)))
+            #plot data and then set log scale
+            axs[icomm,iax].scatter(mean_biomass[~mask],cv_biomass[~mask],marker=markers[icomm],c=colors[inc],alpha=0.7)
+            axs[icomm,iax].scatter(mean_biomass[mask],cv_biomass[mask],marker=markers[icomm],c=colors[inc],alpha=0.2)
+            axs[icomm,iax].plot(mean_biomass,np.power(mean_biomass,TPL[0])*(10**TPL[1]),c='k',label='b='+str(round((TPL[0]+1)*2,2))+', p-value='+str(round(p,3)))
 
-            axs[icomm,iax].axhline(np.log10(CVtilde),c='k',ls='--',zorder=0,alpha=0.5)
-            axs[icomm,iax].axvline(np.log10(meansum/n),c='k',ls=':',zorder=2)
-            axs[icomm,iax].axhline(np.log10(CVe),c='k',ls=':',zorder=1)
+            #axs[icomm,iax].axhline(np.log10(CVtilde),c='k',ls='--',zorder=0,alpha=0.5)
+            #axs[icomm,iax].axvline(np.log10(meansum/n),c='k',ls=':',zorder=2)
+            #axs[icomm,iax].axhline(np.log10(CVe),c='k',ls=':',zorder=1)
+            axs[icomm,iax].axhline(CVtilde,c='k',ls='--',zorder=0,alpha=0.5)
+            axs[icomm,iax].axvline(meansum/n,c='k',ls=':',zorder=2)
+            axs[icomm,iax].axhline(CVe,c='k',ls=':',zorder=1)
+            
+            axs[icomm,iax].set_xscale('log')
+            axs[icomm,iax].set_yscale('log')
             
             
             axs[icomm,iax].set_title(community+' at '+str(round(depth[iz], 3))[:4]+' m')#+' '+str(round(CVe,2))+' '+str(round(cvsum,2)))
-            axs[icomm,iax].set_xlabel('log10(mean biomass)')
-            axs[icomm,iax].set_ylabel('log10(cv biomass)')
+            #axs[icomm,iax].set_xlabel('log10(mean biomass)')
+            #axs[icomm,iax].set_ylabel('log10(cv biomass)')
+            axs[icomm,iax].set_xlabel(r'$\mu_i$ mean biomass')
+            axs[icomm,iax].set_ylabel(r'$CV_i$')
             axs[icomm,iax].legend(loc='lower center')
     fig.tight_layout()
     plt.show()
