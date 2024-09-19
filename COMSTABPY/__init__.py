@@ -384,7 +384,7 @@ class comstab(object):
 		plt.plot()
 		return fig,ax
 
-	def plotCV(self,CV_arr,color=None,figname='CVs.png',ylogscale=True,ylabel=None,marker=None,errorbar=np.array([None]),labels=None):
+	def plotCV(self,CV_arr,color=None,figname='CVs.png',ylogscale=True,ylabel=None,marker=None,errorbar=np.array([None]),labels=None,yticks=np.array([0.2,0.4,0.6,0.8,1.0]),ylim=np.array([0.1,2.0])):
 		'''
 		Function plotting the impacts on CV by dominance, asynchrony and averaging
 		CV_arr:    array or matrix containinf the CVs computed by the partition function,
@@ -401,6 +401,8 @@ class comstab(object):
 				   should have the same dimensions of CV_arr
 		labels:    default None, if not None the labels of the points are set to the string of labels,
 				   should specifiy the name of the communities and have dimension N
+		yticks:    default [0.2,0.4,0.6,0.8,1.0], array of yticks
+		ylim:	   default [0.1,2.0], define limits of y axis
 		RETURN: fig,ax figure and axes where the plot is constructed
 		'''
 
@@ -466,9 +468,12 @@ class comstab(object):
 			ax.set_yscale('log')
 		plt.gca().get_yaxis().clear() #removes the y-axis ticks to set the new ones
 
-		#set y ticks and tickslabes to 0.2,0.4,0.6,0.8,1.0
-		ax.set_yticks([0.2,0.4,0.6,0.8,1.0])
-		ax.set_yticklabels(['0.2','0.4','0.6','0.8','1.0'])
+		#set y ticks and tickslabes to yticks
+		ax.set_yticks(yticks)
+		ax.set_yticklabels([str(y) for y in yticks])
+
+		#set y lim to ylim
+		ax.set_ylim(ylim)
 
 		if ylabel != None:
 			ax.set_ylabel(ylabel)
