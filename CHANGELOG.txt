@@ -13,3 +13,7 @@ Added more documentation
 Added ny parameter to partition function
 Changed order of corners in the ternary plot function
 Added funding
+============
+0.0.4 (Sep 19, 2024)
+- - - - - - - - - - -
+Added the possibility to chose yticks and ylims in plotCV function
