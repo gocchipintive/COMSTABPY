@@ -154,7 +154,7 @@ plt.show()
 CVs = cvs_mean[~mask,:]
 errors = cvs_std[~mask,:]
 
-fig,ax = stb.plotCV(CV_arr=CVs,ylabel='LogScale',errorbar=errors,marker=markers,labels=labels,color=colors,figname=layer+'CVs.png')
+fig,ax = stb.plotCV(CV_arr=CVs,ylabel='LogScale',errorbar=errors,marker=markers,labels=labels,color=colors,figname=layer+'CVs.png',yticks=np.array([0.2,0.4,0.8,1.4,2.0]),ylim=np.array([0.15,2.2]))
 plt.show()
 
 effects = stab_mean[~mask,1:]
