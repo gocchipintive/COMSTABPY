@@ -9,7 +9,7 @@ classifiers = [
 
 setup(
 name="COMSTABPY",
-version="0.0.4",
+version="0.0.5",
 description="COMSTSBPY is an python package that contains basic functions to apply the unified framework for partitioning the drivers of stability of ecological communities",
 long_description=open("README.md").read() + "\n\n" + open("CHANGELOG.txt").read(),
 long_description_content_type='text/markdown',
