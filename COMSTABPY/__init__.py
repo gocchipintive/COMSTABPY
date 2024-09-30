@@ -681,7 +681,7 @@ class comstab(object):
 
 		return df
 
-	def eveness(data,axis=None):
+	def eveness(self,data,axis=None):
 		'''
 		function to compute eveness as the normalized Shannon index
 		H = - sum(p_i * log(p_i))/log(N)

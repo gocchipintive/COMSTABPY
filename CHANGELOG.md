@@ -27,3 +27,6 @@ Code cleaning
 
 ** 0.09 (Sep 30, 2024) **
 Fixed bug in eveness function
+
+** 0.10 (Sep 30, 2024) **
+Fixed bug in eveness function
