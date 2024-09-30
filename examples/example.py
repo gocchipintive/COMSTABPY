@@ -9,7 +9,7 @@ stb = COMSTABPY.comstab()
 
 #chose depth layer
 layer = 'surface'
-layer = 'deep'
+#layer = 'deep'
 
 #arrays to save the rate of layers where the analysis worked correctly
 winter_rate = np.zeros(3)
@@ -18,7 +18,7 @@ year_rate = np.zeros(3)
 
 #communities names: phytoplankton, zooplankton, total(B+P+Z)
 communities = ['P','Z','TOT']
-labels= np.array(['w_P','w_Z','w_TOT','s_P','s_Z','s_TOT','y_P','y_Z','y_TOT'])
+labels= np.array(['w_P','w_Z','w_TOT','s_P','s_Z','s_TOT','a_P','a_Z','a_TOT'])
 #markers = np.array(['o','s','^','o','s','^','o','s','^'])
 markers = np.array(['o','^','*','o','^','*','o','^','*'])
 colors = np.array(['b','b','b','r','r','r','g','g','g'])
