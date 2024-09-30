@@ -693,7 +693,7 @@ class comstab(object):
 		Outputs:
 		H: array of eveness values of shape M if axis is 0 or N if axis is 1. If axis is None it is a single value
 		'''
-		if axis == None:
+		if (axis == None).any():
 			n = len(data)
 			if n == 0:
 				return 0.0
