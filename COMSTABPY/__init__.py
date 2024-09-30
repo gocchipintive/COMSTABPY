@@ -115,7 +115,7 @@ class comstab(object):
 			TPL = np.polyfit(np.log10(meani[~np.isnan(meani)]), np.log10(cvi[~np.isnan(cvi)]), 1) #TPL[0] = b TPL[1] = a
 
 			#test the significance of the fit with Pearson correlation and p value
-			_, p = pearsonr(np.log10(meani[~np.isnan(meani)]), np.log10(cvi[~np.isnan(cvi)]))
+			r, p = pearsonr(np.log10(meani[~np.isnan(meani)]), np.log10(cvi[~np.isnan(cvi)]))
 
 #		plt.plot(np.log10(meani), np.log10(cvi), 'o')
 #		plt.plot(np.log10(meani), np.polyval(TPL, np.log10(meani)))
@@ -125,7 +125,7 @@ class comstab(object):
 #		plt.show()
 #		print("p-value: %.2f" % p)
 
-			if p > 0.05:
+			if p > 0.05 and r < 0.3:
 				print("Error: The fit of Taylor's law is not significant, the analysis is not relevant.")
 				sys.exit()
 
@@ -680,3 +680,31 @@ class comstab(object):
 			df.to_csv(csvname)
 
 		return df
+
+	def eveness(data,axis=None):
+		'''
+		function to compute eveness as the normalized Shannon index
+		H = - sum(p_i * log(p_i))/log(N)
+		where p_i is the proportion of the i-th species in the community and N the number of species
+		Inputs:
+		data: array of shape NxM, where N is the number of species and M the number of samples
+		axis: axis along which to compute the eveness, default is None. If data has more than one dimension
+			  axis should be specified. It should be 0 to compute the eveness of each species or 1 to compute the eveness of each sample
+		Outputs:
+		H: array of eveness values of shape M if axis is 0 or N if axis is 1. If axis is None it is a single value
+		'''
+    	if axis == None:
+        	n = len(data)
+        	if n == 0:
+            	return 0.0
+        	#normalize data
+        	data = data/np.sum(data)
+        	H = - np.sum(data*np.log(data))/np.log(n)
+    	else:
+        	n = data.shape[axis]
+        	if n == 0:
+            	return 0.0
+        	#normalize data
+        	data = data/np.sum(data,axis=axis)[:,np.newaxis]
+        	H = - np.sum(data*np.log(data),axis=axis)/np.log(n)
+    	return H
