@@ -693,18 +693,18 @@ class comstab(object):
 		Outputs:
 		H: array of eveness values of shape M if axis is 0 or N if axis is 1. If axis is None it is a single value
 		'''
-    	if axis == None:
-        	n = len(data)
-        	if n == 0:
-            	return 0.0
-        	#normalize data
-        	data = data/np.sum(data)
-        	H = - np.sum(data*np.log(data))/np.log(n)
-    	else:
-        	n = data.shape[axis]
-        	if n == 0:
-            	return 0.0
-        	#normalize data
-        	data = data/np.sum(data,axis=axis)[:,np.newaxis]
-        	H = - np.sum(data*np.log(data),axis=axis)/np.log(n)
-    	return H
+		if axis == None:
+			n = len(data)
+			if n == 0:
+				return 0.0
+			# normalize data
+			data = data / np.sum(data)
+			H = - np.sum(data * np.log(data)) / np.log(n)
+		else:
+			n = data.shape[axis]
+			if n == 0:
+				return 0.0
+			# normalize data
+			data = data / np.sum(data, axis=axis)[:, np.newaxis]
+			H = - np.sum(data * np.log(data), axis=axis) / np.log(n)
+		return H

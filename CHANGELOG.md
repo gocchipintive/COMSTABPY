@@ -21,3 +21,6 @@ Added eveness function (normalized Shannon Entropy)
 
 ** 0.07 (Sep 30, 2024) **
 Code cleaning
+
+** 0.08 (Sep 30, 2024) **
+Code cleaning
