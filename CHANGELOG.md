@@ -15,3 +15,6 @@ Added the possibility to chose yticks and ylims in plotCV function
 
 ** 0.05 (Sep 19, 2024) **
 Code cleaning
+
+** 0.06 (Sep 30, 2024) **
+Added eveness function (normalized Shannon Entropy)
