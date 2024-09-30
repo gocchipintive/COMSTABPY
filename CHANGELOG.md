@@ -30,3 +30,6 @@ Fixed bug in eveness function
 
 ** 0.10 (Sep 30, 2024) **
 Fixed bug in eveness function
+
+** 0.11 (Sep 30, 2024) **
+Increased the dimensionality fo the output of eveness function

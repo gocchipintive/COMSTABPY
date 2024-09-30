@@ -705,6 +705,9 @@ class comstab(object):
 			if n == 0:
 				return 0.0
 			# normalize data
-			data = data / np.sum(data, axis=axis)[:, np.newaxis]
+			if axis == 1:
+				data = data / np.sum(data, axis=axis)[:, np.newaxis]
+			if axis == 0:
+				data = data / np.sum(data, axis=axis)
 			H = - np.sum(data * np.log(data), axis=axis) / np.log(n)
 		return H
