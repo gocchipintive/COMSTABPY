@@ -9,8 +9,8 @@ classifiers = [
 
 setup(
 name="COMSTABPY",
-version="0.0.6",
-description="COMSTSBPY is an python package that contains basic functions to apply the unified framework for partitioning the drivers of stability of ecological communities",
+version="0.0.7",
+description="COMSTABPY is an python package that contains basic functions to apply the unified framework for partitioning the drivers of stability of ecological communities",
 long_description=open("README.md").read() + "\n\n" + open("CHANGELOG.md").read(),
 long_description_content_type='text/markdown',
 url="https://github.com/gocchipintive/COMSTABPY",
