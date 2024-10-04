@@ -22,7 +22,7 @@ stab_arr = np.zeros((len(labels),32,4))
 rela_arr = np.zeros((len(labels),32,3))
 depths   = np.zeros((len(labels),32))
 
-meanflag = False # True if you want to compute the annual mean of the data
+meanflag = False # False # True if you want to compute the annual mean of the data
 
 for inc,ncname in enumerate(ncnames):
     # Load the data
@@ -48,7 +48,7 @@ for inc,ncname in enumerate(ncnames):
             try:
                 #remove rows with all nan values of temporal axis of data
                 mask = np.isnan(data[:,:,idepth]).all(axis=1)
-                result = stb.partition(data[~mask,:,idepth],stamp=False)
+                result = stb.partition(data[~mask,:,idepth],ny=5,stamp=False)
                 cvs_arr[inc*3+icomm,idepth]  = result['CVs']
                 stab_arr[inc*3+icomm,idepth] = result['Stabilization']
                 rela_arr[inc*3+icomm,idepth] = result['Relative']
@@ -83,6 +83,7 @@ for ax in axs:
     ax.axhline(-10, c='k', ls='--')
 #    ax.set_xscale('log')
     ax.set_xlim(0.1,2.5)
+    ax.set_ylim(-100,0)
 
 pl = axs[0].scatter([],[], s=100,  marker='o', color='k')
 zl = axs[0].scatter([],[], s=100,  marker='^', color='k')
@@ -121,6 +122,7 @@ for ax in axs:
     ax.axhline(-10, c='k', ls='--')
 #    ax.set_xscale('log')
     ax.set_xlim(0.1,2.5)
+    ax.set_ylim(-100,0)
 
 axs[0].legend((pl,zl,tl),
 				('P', 'Z', 'TOT'),
@@ -156,7 +158,8 @@ for ax in axs:
     ax.set_xlabel(r'$\Delta$')
     ax.axhline(-10, c='k', ls='--')
     ax.axvline(1.0, c='k', ls='-', alpha=0.7, zorder=0)
-    ax.set_xlim(0.25,1.2)
+    ax.set_xlim(0.25,1.5)
+    ax.set_ylim(-100,0)
 
 axs[0].legend((pl,zl,tl),
 				('P', 'Z', 'TOT'),
@@ -192,6 +195,7 @@ for ax in axs:
     ax.set_xlabel('$\psi$')
     ax.set_xlim(0.5,1.2)
     ax.axhline(-10, c='k', ls='--')
+    ax.set_ylim(-100,0)
 
 axs[0].legend((pl,zl,tl),
 				('P', 'Z', 'TOT'),
@@ -227,6 +231,7 @@ for ax in axs:
     ax.set_xlabel(r'$\omega$')
     ax.set_xlim(0.5,1.2)
     ax.axhline(-10, c='k', ls='--')
+    ax.set_ylim(-100,0)
 
 axs[0].legend((pl,zl,tl),
 				('P', 'Z', 'TOT'),
@@ -238,7 +243,7 @@ axs[0].legend((pl,zl,tl),
 #				title='Total\nStabilization',
 				borderpad=1.5,
 				#bbox_to_anchor=(0.4,0.95)
-                loc = 'lower right')
+                loc = 'lower left')
                 
 
 plt.show()
