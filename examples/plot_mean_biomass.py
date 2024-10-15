@@ -38,9 +38,16 @@ for inc,ncname in enumerate(ncnames):
             #mean biomass (time,species)
             mean_biomass = np.array(ds[community][:,:,iz])
             if community == 'TOT':
-                species_names = np.array(ds['species'][0,:])
+                long_names = np.array(ds['long_species'][0,:])
+                short_names = np.array(ds['species'][0,:])
             else:
-                species_names = np.array(ds['species'+community][0,:])
+                short_names = np.array(ds['species'+community][0,:])
+                long_names = np.array(ds['long_species'+community][0,:])
+            #in long_names if the species is Heterotrophic Nanoflagellates (HNAN) add string '_ ' to the long name
+            long_names = np.array([long_names[i]+'_ ' if 'HNAN' in long_names[i] else long_names[i] for i in range(len(long_names))])
+            #same for bacteria
+            long_names = np.array([long_names[i]+'_ ' if 'Bacteria' in long_names[i] else long_names[i] for i in range(len(long_names))])
+            species_names = np.array([short_names[ii].split('_')[0]+'_'+long_names[ii].split('_')[1] for ii in range(len(short_names))])
             count = np.count_nonzero(~np.isnan(mean_biomass), axis=0)
             species_names = species_names[count >= ny]
             mean_biomass = mean_biomass[:,count >= ny]
