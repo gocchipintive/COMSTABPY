@@ -8,8 +8,8 @@ os.system('ncrename -v z,z_coord -v zi,zi_coord result.nc resultxr.nc')
 #model output file
 ncname = 'resultxr.nc'
 #threshold to consider species extincted
-threshold = 9.6e-3
-threshold = 1.0e-4
+threshold = 1.0e-2
+#threshold = 1.0e-4
 
 #analysis output files
 #divide in surface and deep layers and seasonal, year
@@ -32,6 +32,11 @@ depth = ds['z_coord'].values[:,:,0,0] #dim: time,depth,lat,lon
 B = [varname for varname in ds.data_vars if 'B' in varname and '_c' in varname and len(varname) < 10]
 P = [varname for varname in ds.data_vars if 'P' in varname and '_c' in varname and len(varname) < 10]
 Z = [varname for varname in ds.data_vars if 'Z' in varname and '_c' in varname and len(varname) < 10]
+
+#get long names of variables which are in the form 'Omnivorous Mesozooplankton_39.7 carbon'
+B_long = [ds[varname].long_name.split(' carbon')[0] for varname in ds.data_vars if 'B' in varname and '_c' in varname and len(varname) < 10]
+P_long = [ds[varname].long_name.split(' carbon')[0] for varname in ds.data_vars if 'P' in varname and '_c' in varname and len(varname) < 10]
+Z_long = [ds[varname].long_name.split(' carbon')[0] for varname in ds.data_vars if 'Z' in varname and '_c' in varname and len(varname) < 10]
 
 #define a map to select depths between 0 and 10m
 surface_map = np.where((depth[0] <= 0) & (depth[0] >= -10))[0]
@@ -160,7 +165,11 @@ ds_surface_summer = xr.Dataset({'B': (['numB', 'time', 'depth'], B_surface_summe
                              'speciesB': (['numB'], B),
                              'speciesP': (['numP'], P),
                              'speciesZ': (['numZ'], Z),
-                             'species': (['numBPZ'], np.concatenate((B, P, Z), axis=0))
+                             'species': (['numBPZ'], np.concatenate((B, P, Z), axis=0)),
+                             'long_speciesB': (['numB'], B_long),
+                             'long_speciesP': (['numP'], P_long),
+                             'long_speciesZ': (['numZ'], Z_long),
+                             'long_species': (['numBPZ'], np.concatenate((B_long, P_long, Z_long), axis=0)) 
                              },
                             coords={'time': time[summer_map], 'depth': depth[0, surface_map], 'numB': np.arange(len(B)), 'numP': np.arange(len(P)), 'numZ': np.arange(len(Z)), 'numBPZ': np.arange(len(B)+len(P)+len(Z))},
                             )
@@ -173,7 +182,11 @@ ds_surface_winter = xr.Dataset({'B': (['numB', 'time', 'depth'], B_surface_winte
                                 'speciesB': (['numB'], B),
                                 'speciesP': (['numP'], P),
                                 'speciesZ': (['numZ'], Z),
-                                'species': (['numBPZ'], np.concatenate((B, P, Z), axis=0))
+                                'species': (['numBPZ'], np.concatenate((B, P, Z), axis=0)),
+                                'long_speciesB': (['numB'], B_long),
+                                'long_speciesP': (['numP'], P_long),
+                                'long_speciesZ': (['numZ'], Z_long),
+                                'long_species': (['numBPZ'], np.concatenate((B_long, P_long, Z_long), axis=0))
                                 },
                                 coords={'time': time[winter_map], 'depth': depth[0, surface_map], 'numB': np.arange(len(B)), 'numP': np.arange(len(P)), 'numZ': np.arange(len(Z)), 'numBPZ': np.arange(len(B)+len(P)+len(Z))},
                                 )
@@ -186,7 +199,11 @@ ds_surface_year = xr.Dataset({'B': (['numB', 'time', 'depth'], B_surface_year),
                                 'speciesB': (['numB'], B),
                                 'speciesP': (['numP'], P),
                                 'speciesZ': (['numZ'], Z),
-                                'species': (['numBPZ'], np.concatenate((B, P, Z), axis=0))
+                                'species': (['numBPZ'], np.concatenate((B, P, Z), axis=0)),
+                                'long_speciesB': (['numB'], B_long),
+                                'long_speciesP': (['numP'], P_long),
+                                'long_speciesZ': (['numZ'], Z_long),
+                                'long_species': (['numBPZ'], np.concatenate((B_long, P_long, Z_long), axis=0))
                                 },
                                 coords={'time': time, 'depth': depth[0, surface_map], 'numB': np.arange(len(B)), 'numP': np.arange(len(P)), 'numZ': np.arange(len(Z)), 'numBPZ': np.arange(len(B)+len(P)+len(Z))},
                                 )
@@ -199,7 +216,11 @@ ds_deep_summer = xr.Dataset({'B': (['numB', 'time', 'depth'], B_deep_summer),
                                 'speciesB': (['numB'], B),
                                 'speciesP': (['numP'], P),
                                 'speciesZ': (['numZ'], Z),
-                                'species': (['numBPZ'], np.concatenate((B, P, Z), axis=0))
+                                'species': (['numBPZ'], np.concatenate((B, P, Z), axis=0)),
+                                'long_speciesB': (['numB'], B_long),
+                                'long_speciesP': (['numP'], P_long),
+                                'long_speciesZ': (['numZ'], Z_long),
+                                'long_species': (['numBPZ'], np.concatenate((B_long, P_long, Z_long), axis=0))
                                 },
                                 coords={'time': time[summer_map], 'depth': depth[0, deep_map], 'numB': np.arange(len(B)), 'numP': np.arange(len(P)), 'numZ': np.arange(len(Z)), 'numBPZ': np.arange(len(B)+len(P)+len(Z))},
                                 )
@@ -212,7 +233,11 @@ ds_deep_winter = xr.Dataset({'B': (['numB', 'time', 'depth'], B_deep_winter),
                                 'speciesB': (['numB'], B),
                                 'speciesP': (['numP'], P),
                                 'speciesZ': (['numZ'], Z),
-                                'species': (['numBPZ'], np.concatenate((B, P, Z), axis=0))
+                                'species': (['numBPZ'], np.concatenate((B, P, Z), axis=0)),
+                                'long_speciesB': (['numB'], B_long),
+                                'long_speciesP': (['numP'], P_long),
+                                'long_speciesZ': (['numZ'], Z_long),
+                                'long_species': (['numBPZ'], np.concatenate((B_long, P_long, Z_long), axis=0))
                                 },
                                 coords={'time': time[winter_map], 'depth': depth[0, deep_map], 'numB': np.arange(len(B)), 'numP': np.arange(len(P)), 'numZ': np.arange(len(Z)), 'numBPZ': np.arange(len(B)+len(P)+len(Z))},
                                 )
@@ -225,7 +250,11 @@ ds_deep_year = xr.Dataset({'B': (['numB', 'time', 'depth'], B_deep_year),
                                 'speciesB': (['numB'], B),
                                 'speciesP': (['numP'], P),
                                 'speciesZ': (['numZ'], Z),
-                                'species': (['numBPZ'], np.concatenate((B, P, Z), axis=0))
+                                'species': (['numBPZ'], np.concatenate((B, P, Z), axis=0)),
+                                'long_speciesB': (['numB'], B_long),
+                                'long_speciesP': (['numP'], P_long),
+                                'long_speciesZ': (['numZ'], Z_long),
+                                'long_species': (['numBPZ'], np.concatenate((B_long, P_long, Z_long), axis=0))
                                 },
                                 coords={'time': time, 'depth': depth[0, deep_map], 'numB': np.arange(len(B)), 'numP': np.arange(len(P)), 'numZ': np.arange(len(Z)), 'numBPZ': np.arange(len(B)+len(P)+len(Z))},
                                 )

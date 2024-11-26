@@ -41,7 +41,8 @@ stab_std  = np.zeros((len(ncnames),len(communities),4))
 rela_mean = np.zeros((len(ncnames),len(communities),3))
 rela_std  = np.zeros((len(ncnames),len(communities),3))
 
-meanflag = False # True if you want to compute the annual mean of the data
+meanflag = False #False # True if you want to compute the annual mean of the data
+
 #markers = ['o','s']
 #labels = ['comm1','comm2']
 
@@ -79,7 +80,8 @@ for inc,ncname in enumerate(ncnames):
             try:
                 #remove rows with all nan values of temporal axis of data
                 mask = np.isnan(data[:,:,idepth]).all(axis=1)
-                result = stb.partition(data[~mask,:,idepth],stamp=False)
+                result = stb.partition(data[~mask,:,idepth],ny=5,stamp=False)
+#               result = stb.partition(np.mean(data[~mask,:,:],axis=2),stamp=False)
                 cvs_arr[idepth]           = result['CVs']
                 stabilization_arr[idepth] = result['Stabilization']
                 relative_arr[idepth]      = result['Relative']
@@ -89,6 +91,11 @@ for inc,ncname in enumerate(ncnames):
                 stabilization_arr[idepth] = np.array([np.nan,np.nan,np.nan,np.nan])
                 relative_arr[idepth]      = np.array([np.nan,np.nan,np.nan])
                 continue
+        if count/data.shape[2] < 0.5:
+            for idepth in range(data.shape[2]):
+                cvs_arr[idepth]           = np.array([np.nan,np.nan,np.nan,np.nan])
+                stabilization_arr[idepth] = np.array([np.nan,np.nan,np.nan,np.nan])
+                relative_arr[idepth]      = np.array([np.nan,np.nan,np.nan])
         print(ncname,community,count/data.shape[2])
         if 'summer' in ncname:
             if 'P' in community:
@@ -123,6 +130,10 @@ for inc,ncname in enumerate(ncnames):
         stab_std[inc,icomm]  = np.nanstd(stabilization_arr,axis=0)
         rela_mean[inc,icomm] = np.nanmean(relative_arr,axis=0)
         rela_std[inc,icomm]  = np.nanstd(relative_arr,axis=0)
+        #if one of the effects is destabilizing in mean do not compute relative effect
+        if stab_mean[inc,icomm].max() > 1:
+            rela_mean[inc,icomm] = np.array([np.nan,np.nan,np.nan])
+            rela_std[inc,icomm]  = np.array([np.nan,np.nan,np.nan])
 
 # cvs_mean has shape (3,3,4) i would like to tranform it in (9,4)
 cvs_mean = cvs_mean.reshape((len(ncnames)*len(communities),4))

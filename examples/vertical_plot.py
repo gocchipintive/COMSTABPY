@@ -20,9 +20,10 @@ colors = ['b','r','g']
 cvs_arr  = np.zeros((len(labels),32,4)) #32 is maximum depth layers number
 stab_arr = np.zeros((len(labels),32,4))
 rela_arr = np.zeros((len(labels),32,3))
+H_arr    = np.zeros((len(labels),32,2)) #eveness of mean and variance
 depths   = np.zeros((len(labels),32))
 
-meanflag = False # True if you want to compute the annual mean of the data
+meanflag = False # False # True if you want to compute the annual mean of the data
 
 for inc,ncname in enumerate(ncnames):
     # Load the data
@@ -46,23 +47,40 @@ for inc,ncname in enumerate(ncnames):
         for idepth in range(data.shape[2]):
 #           print(idepth)
             try:
+                data_ny = data[~mask,:,idepth]
+                ny = 5
+                count = np.count_nonzero(~np.isnan(data_ny), axis=1)
+                data_ny = data_ny[count >= ny]
+                H_arr[inc*3+icomm,idepth,0]  = stb.eveness(np.nanmean(data_ny[:,:],axis=1))
+                H_arr[inc*3+icomm,idepth,1]  = stb.eveness(np.nanstd(data_ny[:,:],axis=1))
+            except:
+                H_arr[inc*3+icomm,idepth] = np.array([np.nan,np.nan])
+
+            try:
                 #remove rows with all nan values of temporal axis of data
                 mask = np.isnan(data[:,:,idepth]).all(axis=1)
-                result = stb.partition(data[~mask,:,idepth],stamp=False)
+                result = stb.partition(data[~mask,:,idepth],ny=5,stamp=False)
                 cvs_arr[inc*3+icomm,idepth]  = result['CVs']
                 stab_arr[inc*3+icomm,idepth] = result['Stabilization']
                 rela_arr[inc*3+icomm,idepth] = result['Relative']
+#               data_ny = data[~mask,:,idepth]
+#               ny = 5
+#               count = np.count_nonzero(~np.isnan(data_ny), axis=1)
+#               data_ny = data_ny[count >= ny]
+#               H_arr[inc*3+icomm,idepth,0]  = stb.eveness(np.nanmean(data_ny[:,:],axis=1))
+#               H_arr[inc*3+icomm,idepth,1]  = stb.eveness(np.nanstd(data_ny[:,:],axis=1))
             except:
                 cvs_arr[inc*3+icomm,idepth]  = np.array([np.nan,np.nan,np.nan,np.nan])
                 stab_arr[inc*3+icomm,idepth] = np.array([np.nan,np.nan,np.nan,np.nan])
                 rela_arr[inc*3+icomm,idepth] = np.array([np.nan,np.nan,np.nan])
+#               H_arr[inc*3+icomm,idepth] = np.array([np.nan,np.nan])
                 continue
  
         if 'surface' in ncname:
             cvs_arr[inc*3+icomm,26:] = np.array([np.nan,np.nan,np.nan,np.nan])
             stab_arr[inc*3+icomm,26:] = np.array([np.nan,np.nan,np.nan,np.nan])
             rela_arr[inc*3+icomm,26:] = np.array([np.nan,np.nan,np.nan])
-        
+            H_arr[inc*3+icomm,26:] = np.array([np.nan,np.nan])
 
 #plot of CVc vs for all communities and depths, divideded in three plots for summer, winter and year
 
@@ -83,6 +101,7 @@ for ax in axs:
     ax.axhline(-10, c='k', ls='--')
 #    ax.set_xscale('log')
     ax.set_xlim(0.1,2.5)
+    ax.set_ylim(-100,0)
 
 pl = axs[0].scatter([],[], s=100,  marker='o', color='k')
 zl = axs[0].scatter([],[], s=100,  marker='^', color='k')
@@ -121,6 +140,7 @@ for ax in axs:
     ax.axhline(-10, c='k', ls='--')
 #    ax.set_xscale('log')
     ax.set_xlim(0.1,2.5)
+    ax.set_ylim(-100,0)
 
 axs[0].legend((pl,zl,tl),
 				('P', 'Z', 'TOT'),
@@ -156,7 +176,8 @@ for ax in axs:
     ax.set_xlabel(r'$\Delta$')
     ax.axhline(-10, c='k', ls='--')
     ax.axvline(1.0, c='k', ls='-', alpha=0.7, zorder=0)
-    ax.set_xlim(0.25,1.2)
+    ax.set_xlim(0.25,1.5)
+    ax.set_ylim(-100,0)
 
 axs[0].legend((pl,zl,tl),
 				('P', 'Z', 'TOT'),
@@ -192,6 +213,7 @@ for ax in axs:
     ax.set_xlabel('$\psi$')
     ax.set_xlim(0.5,1.2)
     ax.axhline(-10, c='k', ls='--')
+    ax.set_ylim(-100,0)
 
 axs[0].legend((pl,zl,tl),
 				('P', 'Z', 'TOT'),
@@ -227,6 +249,7 @@ for ax in axs:
     ax.set_xlabel(r'$\omega$')
     ax.set_xlim(0.5,1.2)
     ax.axhline(-10, c='k', ls='--')
+    ax.set_ylim(-100,0)
 
 axs[0].legend((pl,zl,tl),
 				('P', 'Z', 'TOT'),
@@ -238,9 +261,203 @@ axs[0].legend((pl,zl,tl),
 #				title='Total\nStabilization',
 				borderpad=1.5,
 				#bbox_to_anchor=(0.4,0.95)
-                loc = 'lower right')
+                loc = 'lower left')
                 
 
 plt.show()
 
 fig.savefig('omega_vs_depth.png')
+
+#plot of eveness of mean
+fig,axs = plt.subplots(1,3,figsize=(10,10))
+
+for iax,ncname in enumerate(ncnames):
+    for icomm,community in enumerate(communities):
+        if 'summer' in ncname:
+            axs[1].scatter(H_arr[iax*3+icomm,:,0], depths[iax*3+icomm], c=colors[1], marker=markers[icomm], alpha=0.5)
+        if 'winter' in ncname:
+            axs[0].scatter(H_arr[iax*3+icomm,:,0], depths[iax*3+icomm], c=colors[0], marker=markers[icomm], alpha=0.5, label=community)
+        if 'year' in ncname:
+            axs[2].scatter(H_arr[iax*3+icomm,:,0], depths[iax*3+icomm], c=colors[2], marker=markers[icomm], alpha=0.5)
+
+#axs[0].legend()
+axs[0].set_ylabel('Depth (m)')
+for ax in axs:
+    ax.set_xlabel(r'$H_{\mu}$')
+    ax.set_xlim(0.4,1.0)
+    ax.set_ylim(-100,0)
+    ax.axhline(-10, c='k', ls='--')
+
+axs[0].legend((pl,zl,tl),
+                                ('P', 'Z', 'TOT'),
+                                scatterpoints=1,
+                                #loc='center left',
+                                ncol=1,
+                                fontsize=10,
+                                frameon=False,
+#                               title='Total\nStabilization',
+                                borderpad=1.5,
+                                #bbox_to_anchor=(0.4,0.95)
+                loc = 'lower right')
+plt.show()
+
+fig.savefig('H_mu_vs_depth.png')
+
+#plot of eveness of standard deviation
+fig,axs = plt.subplots(1,3,figsize=(10,10))
+
+for iax,ncname in enumerate(ncnames):
+    for icomm,community in enumerate(communities):
+        if 'summer' in ncname:
+            axs[1].scatter(H_arr[iax*3+icomm,:,1], depths[iax*3+icomm], c=colors[1], marker=markers[icomm], alpha=0.5)
+        if 'winter' in ncname:
+            axs[0].scatter(H_arr[iax*3+icomm,:,1], depths[iax*3+icomm], c=colors[0], marker=markers[icomm], alpha=0.5, label=community)
+        if 'year' in ncname:
+            axs[2].scatter(H_arr[iax*3+icomm,:,1], depths[iax*3+icomm], c=colors[2], marker=markers[icomm], alpha=0.5)
+
+#axs[0].legend()
+axs[0].set_ylabel('Depth (m)')
+for ax in axs:
+    ax.set_xlabel(r'$H_{\sigma}$')
+    ax.set_xlim(0.4,1.0)
+    ax.set_ylim(-100,0)
+    ax.axhline(-10, c='k', ls='--')
+
+axs[0].legend((pl,zl,tl),
+                                ('P', 'Z', 'TOT'),
+                                scatterpoints=1,
+                                #loc='center left',
+                                ncol=1,
+                                fontsize=10,
+                                frameon=False,
+#                               title='Total\nStabilization',
+                                borderpad=1.5,
+                                #bbox_to_anchor=(0.4,0.95)
+                loc = 'lower right')
+
+
+plt.show()
+fig.savefig('H_sigma_vs_depth.png')
+
+#plot of delta against eveness of mean and standard deviation
+fig,axs = plt.subplots(1,2,figsize=(10,5))
+
+for iax,ncname in enumerate(ncnames):
+    for icomm,community in enumerate(communities):
+        if 'summer' in ncname:
+            axs[0].scatter(H_arr[iax*3+icomm,:,0], stab_arr[iax*3+icomm,:,1], c=colors[1], marker=markers[icomm], alpha=0.5)
+            axs[1].scatter(H_arr[iax*3+icomm,:,1], stab_arr[iax*3+icomm,:,1], c=colors[1], marker=markers[icomm], alpha=0.5)
+        if 'winter' in ncname:
+            axs[0].scatter(H_arr[iax*3+icomm,:,0], stab_arr[iax*3+icomm,:,1], c=colors[0], marker=markers[icomm], alpha=0.5, label=community)
+            axs[1].scatter(H_arr[iax*3+icomm,:,1], stab_arr[iax*3+icomm,:,1], c=colors[0], marker=markers[icomm], alpha=0.5)
+        if 'year' in ncname:
+            axs[0].scatter(H_arr[iax*3+icomm,:,0], stab_arr[iax*3+icomm,:,1], c=colors[2], marker=markers[icomm], alpha=0.5)
+            axs[1].scatter(H_arr[iax*3+icomm,:,1], stab_arr[iax*3+icomm,:,1], c=colors[2], marker=markers[icomm], alpha=0.5)
+axs[0].set_ylabel(r'$\Delta$')
+axs[0].set_xlabel(r'$H_{\mu}$')
+axs[1].set_xlabel(r'$H_{\sigma}$')
+
+axs[0].legend((pl,zl,tl),
+                                ('P', 'Z', 'TOT'),
+                                scatterpoints=1,
+                                #loc='center left',
+                                ncol=1,
+                                fontsize=10,
+                                frameon=False,
+#                               title='Total\nStabilization',
+                                borderpad=1.5,
+                                #bbox_to_anchor=(0.4,0.95)
+                loc = 'lower right')
+#set log sclae
+#axs[0].set_xscale('log')
+#axs[1].set_xscale('log')
+#axs[0].set_yscale('log')
+#axs[1].set_yscale('log')
+
+for ax in axs:
+    ax.axhline(1, c='k', ls='--')
+
+plt.show()
+fig.savefig('H_Delta.png')
+
+#plot of psi against eveness of mean and standard deviation
+fig,axs = plt.subplots(1,2,figsize=(10,5))
+
+for iax,ncname in enumerate(ncnames):
+    for icomm,community in enumerate(communities):
+        if 'summer' in ncname:
+            axs[0].scatter(H_arr[iax*3+icomm,:,0], stab_arr[iax*3+icomm,:,2], c=colors[1], marker=markers[icomm], alpha=0.5)
+            axs[1].scatter(H_arr[iax*3+icomm,:,1], stab_arr[iax*3+icomm,:,2], c=colors[1], marker=markers[icomm], alpha=0.5)
+        if 'winter' in ncname:
+            axs[0].scatter(H_arr[iax*3+icomm,:,0], stab_arr[iax*3+icomm,:,2], c=colors[0], marker=markers[icomm], alpha=0.5, label=community)
+            axs[1].scatter(H_arr[iax*3+icomm,:,1], stab_arr[iax*3+icomm,:,2], c=colors[0], marker=markers[icomm], alpha=0.5)
+        if 'year' in ncname:
+            axs[0].scatter(H_arr[iax*3+icomm,:,0], stab_arr[iax*3+icomm,:,2], c=colors[2], marker=markers[icomm], alpha=0.5)
+            axs[1].scatter(H_arr[iax*3+icomm,:,1], stab_arr[iax*3+icomm,:,2], c=colors[2], marker=markers[icomm], alpha=0.5)
+axs[0].set_ylabel(r'$\psi$')
+axs[0].set_xlabel(r'$H_{\mu}$')
+axs[1].set_xlabel(r'$H_{\sigma}$')
+
+axs[0].legend((pl,zl,tl),
+                                ('P', 'Z', 'TOT'),
+                                scatterpoints=1,
+                                #loc='center left',
+                                ncol=1,
+                                fontsize=10,
+                                frameon=False,
+#                               title='Total\nStabilization',
+                                borderpad=1.5,
+                                #bbox_to_anchor=(0.4,0.95)
+                loc = 'lower right')
+#set log sclae
+#axs[0].set_xscale('log')
+#axs[1].set_xscale('log')
+#axs[0].set_yscale('log')
+#axs[1].set_yscale('log')
+
+for ax in axs:
+    ax.axhline(1, c='k', ls='--')
+
+plt.show()
+fig.savefig('H_psi.png')
+
+#plot of omega against eveness of mean and standard deviation
+fig,axs = plt.subplots(1,2,figsize=(10,5))
+
+for iax,ncname in enumerate(ncnames):
+    for icomm,community in enumerate(communities):
+        if 'summer' in ncname:
+            axs[0].scatter(H_arr[iax*3+icomm,:,0], stab_arr[iax*3+icomm,:,3], c=colors[1], marker=markers[icomm], alpha=0.5)
+            axs[1].scatter(H_arr[iax*3+icomm,:,1], stab_arr[iax*3+icomm,:,3], c=colors[1], marker=markers[icomm], alpha=0.5)
+        if 'winter' in ncname:
+            axs[0].scatter(H_arr[iax*3+icomm,:,0], stab_arr[iax*3+icomm,:,3], c=colors[0], marker=markers[icomm], alpha=0.5, label=community)
+            axs[1].scatter(H_arr[iax*3+icomm,:,1], stab_arr[iax*3+icomm,:,3], c=colors[0], marker=markers[icomm], alpha=0.5)
+        if 'year' in ncname:
+            axs[0].scatter(H_arr[iax*3+icomm,:,0], stab_arr[iax*3+icomm,:,3], c=colors[2], marker=markers[icomm], alpha=0.5)
+            axs[1].scatter(H_arr[iax*3+icomm,:,1], stab_arr[iax*3+icomm,:,3], c=colors[2], marker=markers[icomm], alpha=0.5)
+axs[0].set_ylabel(r'$\omega$')
+axs[0].set_xlabel(r'$H_{\mu}$')
+axs[1].set_xlabel(r'$H_{\sigma}$')
+
+axs[0].legend((pl,zl,tl),
+                                ('P', 'Z', 'TOT'),
+                                scatterpoints=1,
+                                #loc='center left',
+                                ncol=1,
+                                fontsize=10,
+                                frameon=False,
+#                               title='Total\nStabilization',
+                                borderpad=1.5,
+                                #bbox_to_anchor=(0.4,0.95)
+                loc = 'lower right')
+#set log sclae
+#axs[0].set_xscale('log')
+#axs[1].set_xscale('log')
+#axs[0].set_yscale('log')
+#axs[1].set_yscale('log')
+
+for ax in axs:
+    ax.axhline(1, c='k', ls='--')
+
+plt.show()
+fig.savefig('H_omega.png')

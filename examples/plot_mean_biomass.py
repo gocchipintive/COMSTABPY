@@ -17,6 +17,8 @@ if layer == 'deep':
 
 communities = ['P','Z','TOT']
 
+ny = 5
+
 for inc,ncname in enumerate(ncnames):
     # Load the data
     ds = xr.open_dataset(ncname)
@@ -36,9 +38,19 @@ for inc,ncname in enumerate(ncnames):
             #mean biomass (time,species)
             mean_biomass = np.array(ds[community][:,:,iz])
             if community == 'TOT':
-                species_names = np.array(ds['species'][0,:])
+                long_names = np.array(ds['long_species'][0,:])
+                short_names = np.array(ds['species'][0,:])
             else:
-                species_names = np.array(ds['species'+community][0,:])
+                short_names = np.array(ds['species'+community][0,:])
+                long_names = np.array(ds['long_species'+community][0,:])
+            #in long_names if the species is Heterotrophic Nanoflagellates (HNAN) add string '_ ' to the long name
+            long_names = np.array([long_names[i]+'_ ' if 'HNAN' in long_names[i] else long_names[i] for i in range(len(long_names))])
+            #same for bacteria
+            long_names = np.array([long_names[i]+'_ ' if 'Bacteria' in long_names[i] else long_names[i] for i in range(len(long_names))])
+            species_names = np.array([short_names[ii].split('_')[0]+'_'+long_names[ii].split('_')[1] for ii in range(len(short_names))])
+            count = np.count_nonzero(~np.isnan(mean_biomass), axis=0)
+            species_names = species_names[count >= ny]
+            mean_biomass = mean_biomass[:,count >= ny]
             #reorder mean_biomass and species_names as the magnitude of np.mean(mean_biomass,axis=0)
             indexes = np.argsort(np.nan_to_num(np.nanmean(mean_biomass,axis=0), copy=False, nan=-np.inf))[::-1]
             mean_biomass = mean_biomass[:,indexes]
@@ -52,7 +64,8 @@ for inc,ncname in enumerate(ncnames):
                     axs[icomm,iax].plot(time,mean_biomass[:,ispec],alpha=0.3)
             axs[icomm,iax].set_title(community+' at '+str(round(depth[iz], 3))[:4]+' m')
             axs[icomm,iax].set_yscale('log')
-            axs[icomm,iax].set_xlabel('day of year')
+            if community == 'TOT':
+                axs[icomm,iax].set_xlabel('day of year')
             axs[icomm,iax].set_ylabel('biomass $[mgC/m^3]$')
             axs[icomm,iax].legend(loc='lower center')
     fig.tight_layout()
