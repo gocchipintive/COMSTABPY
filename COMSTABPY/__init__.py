@@ -16,7 +16,7 @@ class comstab(object):
 		#self.datashape = np.shape(data)
 		self.colors =  plt.get_cmap('tab20').colors
 	
-	def partition(self,data, ny=None, stamp=True):
+	def partition(self,data, ny=None, stamp=True, taylor=True):
 		"""
 		partition is a function used to partition the temporal coefficient of variation 
 		of a community into the variability of the average species and three stabilizing 
@@ -26,6 +26,7 @@ class comstab(object):
 		ny:    integer number of timesteps, removes species appearing in fewer than "ny" timesteps. 
 		       The unit of measure is the timestep of the timeseries, default is None
 		stamp: if True the results are printed on the screen
+		taylor: if True the analysis is performed only if the Taylor's law fit is significant
 		RETURN: res a dictionary containing the following keys:
 		- CVs:           an array containing the coefficient of variation of the average species, 
 		                 the total variability of the community, the total variability of the community 
@@ -124,13 +125,17 @@ class comstab(object):
 #		plt.title("Taylor's law")
 #		plt.show()
 #		print("p-value: %.2f" % p)
+			if taylor: #the analysis is performed only if the Taylor's law fit is significant 
+				if p > 0.05 and r < 0.3:
+					print("Error: The fit of Taylor's law is not significant, the analysis is not relevant.")
+					sys.exit()
 
-			if p > 0.05 and r < 0.3:
-				print("Error: The fit of Taylor's law is not significant, the analysis is not relevant.")
-				sys.exit()
-
-			#compute the coefficient of variation of the average species
-			CVe = 10**TPL[1] * (meansum / n)**TPL[0]
+				#compute the coefficient of variation of the average species
+				CVe = 10**TPL[1] * (meansum / n)**TPL[0]
+			else:
+				if p > 0.05 and r < 0.3:
+					print("Warning: The fit of Taylor's law is not significant, the dominance effect is not relevant.")
+					CVe = np.nan
 
 			#Dominance effect
 			sumsd = np.nansum(np.sqrt(vari))
