@@ -9,7 +9,7 @@ stb = COMSTABPY.comstab()
 
 #chose depth layer
 layer = 'surface'
-#layer = 'deep'
+layer = 'deep'
 
 #arrays to save the rate of layers where the analysis worked correctly
 winter_rate = np.zeros(3)
@@ -40,6 +40,9 @@ stab_std  = np.zeros((len(ncnames),len(communities),4))
 
 rela_mean = np.zeros((len(ncnames),len(communities),3))
 rela_std  = np.zeros((len(ncnames),len(communities),3))
+
+tay_mean = np.zeros((len(ncnames),len(communities)))
+tay_std  = np.zeros((len(ncnames),len(communities)))
 
 meanflag = False #False # True if you want to compute the annual mean of the data
 
@@ -73,6 +76,7 @@ for inc,ncname in enumerate(ncnames):
         cvs_arr           = np.zeros((data.shape[2],4)) # CVe, CVtilde, CVa, CVc
         stabilization_arr = np.zeros((data.shape[2],4)) # tau, delta, psi, omega
         relative_arr      = np.zeros((data.shape[2],3)) # delta_cont, psi_cont, omega_cont
+        tay_arr           = np.zeros(data.shape[2])
         count = 0
         # Run the analysis
         for idepth in range(data.shape[2]):
@@ -85,17 +89,20 @@ for inc,ncname in enumerate(ncnames):
                 cvs_arr[idepth]           = result['CVs']
                 stabilization_arr[idepth] = result['Stabilization']
                 relative_arr[idepth]      = result['Relative']
+                tay_arr[idepth]           = result['Taylor'][0]
                 count += 1
             except:
                 cvs_arr[idepth]           = np.array([np.nan,np.nan,np.nan,np.nan])
                 stabilization_arr[idepth] = np.array([np.nan,np.nan,np.nan,np.nan])
                 relative_arr[idepth]      = np.array([np.nan,np.nan,np.nan])
+                tay_arr[idepth]           = np.nan
                 continue
         if count/data.shape[2] < 0.5:
             for idepth in range(data.shape[2]):
                 cvs_arr[idepth]           = np.array([np.nan,np.nan,np.nan,np.nan])
                 stabilization_arr[idepth] = np.array([np.nan,np.nan,np.nan,np.nan])
                 relative_arr[idepth]      = np.array([np.nan,np.nan,np.nan])
+                tay_arr[idepth]           = np.nan
         print(ncname,community,count/data.shape[2])
         if 'summer' in ncname:
             if 'P' in community:
@@ -130,6 +137,8 @@ for inc,ncname in enumerate(ncnames):
         stab_std[inc,icomm]  = np.nanstd(stabilization_arr,axis=0)
         rela_mean[inc,icomm] = np.nanmean(relative_arr,axis=0)
         rela_std[inc,icomm]  = np.nanstd(relative_arr,axis=0)
+        tay_mean[inc,icomm] = np.nanmean(tay_arr)
+        tay_std[inc,icomm]  = np.nanstd(tay_arr)
         #if one of the effects is destabilizing in mean do not compute relative effect
         if stab_mean[inc,icomm].max() > 1:
             rela_mean[inc,icomm] = np.array([np.nan,np.nan,np.nan])
@@ -142,6 +151,8 @@ stab_mean = stab_mean.reshape((len(ncnames)*len(communities),4))
 stab_std  = stab_std.reshape((len(ncnames)*len(communities),4))
 rela_mean = rela_mean.reshape((len(ncnames)*len(communities),3))
 rela_std  = rela_std.reshape((len(ncnames)*len(communities),3))
+tay_mean = tay_mean.reshape(len(ncnames)*len(communities))
+tay_std  = tay_std.reshape(len(ncnames)*len(communities))
 
 print(stab_mean[2])
 print(stab_std[2])
@@ -186,3 +197,16 @@ dic = {'Trophic group':communities, 'Winter':winter_rate, 'Summer':summer_rate, 
 
 df = pd.DataFrame(dic)
 df.to_csv(layer+'rates.csv',index=False)
+
+#save Taylors mean and std for each community and temporal scale (winter,summer,year) in a csv file
+temporal = ['Winter','Summer','Year']
+temp_comm = []
+for comm in communities:
+    for temp in temporal:
+        temp_comm.append(comm+'_'+temp)
+dic = {'Community':temp_comm, 'Mean':tay_mean, 'Std':tay_std}
+df = pd.DataFrame(dic)
+
+df.to_csv(layer+'taylors.csv',index=False)
+
+print(dic)
